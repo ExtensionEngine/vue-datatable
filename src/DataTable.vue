@@ -193,12 +193,6 @@ export default {
     }
   },
 
-  filters: {
-    pagination (rows, currentPage, pageCount) {
-      return this.getPageRows(rows, currentPage, pageCount)
-    }
-  },
-
   methods: {
     onChangePageCount () {
       this.currentPage = 1
