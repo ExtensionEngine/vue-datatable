@@ -21,77 +21,108 @@ export default {
     return {
       tableData: {
         options: {
-        	// Global sort option
           sortable: true,
-          // Global edit option
           editable: true,
-          // How many items will be shown in each page
-          pageCount: 10,
-          // Callback of change page
-          onPageChanged(page) {
-            console.log(page);
-          }
+          pageCount: 10
         },
-
         columns: [
           {
             value: 'id',
             text: 'ID',
-            // If this column is sortable
             sortable: true,
-            // If this column is editable
+            editable: false
+          },
+          {
+            value: 'name',
+            text: 'Name',
+            sortable: true,
+            editable: true
+          },
+          {
+            value: 'age',
+            text: 'Age',
+            sortable: true,
+            editable: true
+          },
+          {
+            value: 'sex',
+            text: 'Sex',
+            sortable: true,
+            editable: true
+          },
+          {
+            value: 'link',
+            text: 'Link',
+            sortable: false,
             editable: false,
-            // Render this column as HTML or not
-            isHTML: false,
-            // Render this column as button array or not
-            isButton: false
+            isHTML: true
           },
           {
-          	value: 'html',
-          	text: 'HTML',
-          	sortable: false,
-          	editable: false,
-          	isHTML: true,
-          	isButton: false
-          },
-          {
-          	value: 'button',
-          	text: 'Button',
-          	sortable: false,
-          	editable: false,
-          	isHTML: false,
-          	isButton: true
+            value: 'action',
+            text: 'Action',
+            sortable: false,
+            editable: false,
+            isButton: true
           }
         ],
-
-        rows: [
-			{
-				id: {
-					value: 1,
-					// If this field is editable
-					editable: false
-				},
-				html: {
-					value: '<a href="https://www.github.com">'GitHub</a>
-				},
-				button: {
-					value: [
-						// Text of this button
-						text: 'Button',
-						// Classes of this button
-						class: ['button'],
-						// Click function, 3 arguments: event, column text and current field object
-						func: function(event, column, field) {
-						
-						}
-					]
-				}
-			}
-        ]
+        rows: [],
+        onPageChanged (page) {
+          console.log('Current page is ' + page)
+        }
       }
     }
   },
+  created () {
+    const chance = new Chance()
+    const length = chance.integer({min: 0, max: 30})
 
+    for (let i = 0; i < length; i++) {
+      const obj = {
+        id: {
+          value: i + 1
+        },
+
+        name: {
+          value: chance.name(),
+          editable: chance.bool()
+        },
+        age: {
+          value: chance.age(),
+          editable: chance.bool()
+        },
+        sex: {
+          value: chance.gender(),
+          editable: chance.bool
+        },
+        link: {
+          value: `<a href="${chance.url()}">${chance.url()}</a>`
+        },
+        action: {
+          value: [
+            {
+              text: 'action1',
+              class: ['red'],
+              func: function (event, column, field) {
+                console.log('event', event)
+                console.log('column', column)
+                console.log('field', field)
+              }
+            },
+            {
+              text: 'action2',
+              class: ['green'],
+              func: function (event, column, field) {
+                console.log('event', event)
+                console.log('column', column)
+                console.log('field', field)
+              }
+            }
+          ]
+        }
+      }
+      this.tableData.rows.push(obj)
+    }
+  },
   components: {
     DataTable
   }

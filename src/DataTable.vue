@@ -28,8 +28,8 @@
       </thead>
 
       <tbody>
-        <tr v-for="row in filteredRows | pagination currentPage dataTable.optionts.pageCount" track-by="$index">
-          <td v-for="(key, item) in row" @click="editField(item, key)">
+        <tr v-for="row in paginatedRows" track-by="$index">
+          <td v-for="(item, key) in row" @click="editField(item, key)">
             <span v-if="!item.editing">
               <template v-if="isButton(key)">
                 <button type="button"
@@ -38,7 +38,7 @@
                         @click="button.func($event, key, button)">{{button.text}}</button>
               </template>
               <template v-else>
-                <template v-if="isHTML(key)">{{{item.value}}}</template>
+                <template v-if="isHTML(key)"><span v-html="item.value"></span></template>
                 <template v-else>{{item.value}}</template>
               </template>
             </span>
@@ -66,17 +66,17 @@
            @click="togglePage(1)">1</a>
         <span v-if="currentPage >= 5 && lastPage > 10">...</span>
         <a class="v-table-footer-page-btn" href="javascript:;"
-           :class="{current: currentPage == page + 1}"
+           :class="{current: currentPage === page + 1}"
            @click="togglePage(page + 1)"
            v-for="page in centerPartPage">{{page + 1}}</a>
         <span v-if="lastPage > 10 && lastPage - currentPage > 5">...</span>
         <a class="v-table-footer-page-btn" href="javascript:;"
-           :class="{current: currentPage == page + 1}"
+           :class="{current: currentPage === page + 1}"
            @click="togglePage(page + 1)"
            v-for="page in lastPartPage">{{page + 1}}</a>
         <a class="v-table-footer-page-btn" href="javascript:;"
            @click="togglePage('next')"
-           :class="{disabled: currentPage == lastPage}">Next</a>
+           :class="{disabled: currentPage === lastPage}">Next</a>
       </div>
     </div>
   </div>
@@ -86,7 +86,7 @@
 export default {
   props: ['dataTable'],
 
-  data() {
+  data () {
     return {
       currentPage: 1,
       searchBy: '',
@@ -99,218 +99,221 @@ export default {
   },
 
   computed: {
-    filteredRows() {
-      return this.filterRows(this.dataTable.rows, this.dataTable.options, this.currentPage);
+    paginatedRows () {
+      return this.getPageRows(this.filteredRows, this.currentPage, this.dataTable.options.pageCount)
+    },
+    filteredRows () {
+      return this.filterRows(this.dataTable.rows, this.dataTable.options, this.currentPage)
     },
 
-    lastPage() {
-      return Math.ceil(this.filteredRows.length / this.dataTable.options.pageCount);
+    lastPage () {
+      return Math.ceil(this.filteredRows.length / this.dataTable.options.pageCount)
     },
 
-    centerPartPage() {
-      if(this.lastPage > 10 && this.currentPage >= 5) {
-        if(this.lastPage - this.currentPage > 5) {
-          return this.currentPage === this.lastPage ? [this.currentPage - 3, this.currentPage - 2, this.currentPage - 1] : [this.currentPage - 2, this.currentPage - 1, this.currentPage];
-        }else {
-          const r = [];
+    centerPartPage () {
+      if (this.lastPage > 10 && this.currentPage >= 5) {
+        if (this.lastPage - this.currentPage > 5) {
+          return this.currentPage === this.lastPage ? [this.currentPage - 3, this.currentPage - 2, this.currentPage - 1] : [this.currentPage - 2, this.currentPage - 1, this.currentPage]
+        } else {
+          const r = []
 
-          for(let i = this.lastPage - 6; i < this.lastPage; i++) {
-            r.push(i);
+          for (let i = this.lastPage - 6; i < this.lastPage; i++) {
+            r.push(i)
           }
-          return r;
+          return r
         }
-      }else if(this.lastPage > 10) {
-        const r = [];
+      } else if (this.lastPage > 10) {
+        const r = []
 
-        for(let i = 1; i < 5; i++) {
-          r.push(i);
+        for (let i = 1; i < 5; i++) {
+          r.push(i)
         }
-        return r;
-      }else {
-        const r = [];
+        return r
+      } else {
+        const r = []
 
-        for(let i = 1; i < this.lastPage; i++) {
-          r.push(i);
+        for (let i = 1; i < this.lastPage; i++) {
+          r.push(i)
         }
-        return r;
+        return r
       }
     },
 
-    lastPartPage() {
-      if(this.lastPage > 10 && this.lastPage - this.currentPage > 5) {
-        return [this.lastPage - 1];
-      }else {
-        return [];
+    lastPartPage () {
+      if (this.lastPage > 10 && this.lastPage - this.currentPage > 5) {
+        return [this.lastPage - 1]
+      } else {
+        return []
       }
     },
 
-    firstRow() {
-      return this.currentPage === 1 ? 0 : this.dataTable.options.pageCount * (this.currentPage - 1);
+    firstRow () {
+      return this.currentPage === 1 ? 0 : this.dataTable.options.pageCount * (this.currentPage - 1)
     },
 
-    lastRow() {
-      return this.dataTable.options.pageCount * this.currentPage > this.filteredRows.length ? this.filteredRows.length : this.dataTable.options.pageCount * this.currentPage;
+    lastRow () {
+      return this.dataTable.options.pageCount * this.currentPage > this.filteredRows.length ? this.filteredRows.length : this.dataTable.options.pageCount * this.currentPage
     }
   },
 
   watch: {
-    'dataTable.rows'(rows) {
+    'dataTable.rows' (rows) {
       rows.forEach((row, index) => {
-        for(let key in row) {
+        for (let key in row) {
           const column = this.dataTable.columns.filter((column) => {
-            return column.value === key;
-          })[0];
-          
+            return column.value === key
+          })[0]
+
           row[key] = Object.assign({
             editable: column.editable,
             editing: false,
             tmpValue: ''
-          }, row[key]);
+          }, row[key])
         }
 
-        this.dataTable.rows[index] = row;
-      });
+        this.dataTable.rows[index] = row
+      })
     },
 
-    'dataTable.columns'(columns) {
+    'dataTable.columns' (columns) {
       columns.forEach((column, index) => {
         column = Object.assign({
           editable: false,
           sortable: false
-        }, column);
+        }, column)
 
-        this.dataTable.columns[index] = column;
+        this.dataTable.columns[index] = column
       })
     },
 
-    'searchBy'(val) {
-      if(val) {
-        this.currentPage = 1;
+    'searchBy' (val) {
+      if (val) {
+        this.currentPage = 1
       }
     }
   },
 
   filters: {
-    pagination(rows, currentPage, pageCount) {
-      return this.getPageRows(rows, currentPage, pageCount);
+    pagination (rows, currentPage, pageCount) {
+      return this.getPageRows(rows, currentPage, pageCount)
     }
   },
 
   methods: {
-    onChangePageCount() {
-      this.currentPage = 1;
+    onChangePageCount () {
+      this.currentPage = 1
     },
 
-    filterRows(rows, options, currentPage) {
-      rows = this.sort.sortBy ? this.sortRows(rows, this.sort.sortBy) : rows;
-      
-      if(this.searchBy !== '') {
-        rows = rows.filter((row) => {
-          let r = false;
+    filterRows (rows, options, currentPage) {
+      rows = this.sort.sortBy ? this.sortRows(rows, this.sort.sortBy) : rows
 
-          for(let key in row) {
-            if(row[key].value
+      if (this.searchBy !== '') {
+        rows = rows.filter((row) => {
+          let r = false
+
+          for (let key in row) {
+            if (row[key].value
               .toString()
               .toLowerCase()
               .indexOf(this.searchBy.toLowerCase()) !== -1) {
-              r = true;
+              r = true
             }
           }
 
-          return r;
-        });
+          return r
+        })
       }
 
-      return rows;
+      return rows
     },
 
-    getPageRows(rows) {
-      return rows.slice(this.firstRow, this.lastRow);
+    getPageRows (rows) {
+      return rows.slice(this.firstRow, this.lastRow)
     },
 
-    togglePage(page) {
-      switch(page) {
-        case 'prev': 
-          if(this.currentPage <= 1) return ;
-          this.currentPage--;
-          break;
+    togglePage (page) {
+      switch (page) {
+        case 'prev':
+          if (this.currentPage <= 1) return
+          this.currentPage--
+          break
         case 'next':
-          if (this.currentPage >= this.lastPage) return ;
-          this.currentPage++;
-          break;
+          if (this.currentPage >= this.lastPage) return
+          this.currentPage++
+          break
         default:
-          if(this.currentPage == page) return ;
-          this.currentPage = page;
+          if (this.currentPage === page) return
+          this.currentPage = page
       }
-      if(this.dataTable.onPageChanged) {
-        this.dataTable.onPageChanged(this.currentPage);
-      }
-    },
-
-    sortBy(column) {
-      if(!column.sortable || !this.dataTable.options.sortable) return ;
-
-      if(column.value === this.sort.sortBy) {
-        this.sort.desc = !this.sort.desc;
-      }else {
-        this.sort.sortBy = column.value;
-        this.sort.desc = true;
+      if (this.dataTable.onPageChanged) {
+        this.dataTable.onPageChanged(this.currentPage)
       }
     },
 
-    editField(field, key) {
-      if(!this.isEditable(field, key, true)) return ;
+    sortBy (column) {
+      if (!column.sortable || !this.dataTable.options.sortable) return
 
-      field.tmpValue = field.value;
-      field.editing = true;
+      if (column.value === this.sort.sortBy) {
+        this.sort.desc = !this.sort.desc
+      } else {
+        this.sort.sortBy = column.value
+        this.sort.desc = true
+      }
     },
 
-    saveEdit(field) {
-      field.value = field.tmpValue;
-      field.editing = false;
-      field.tmpValue = '';
+    editField (field, key) {
+      if (!this.isEditable(field, key, true)) return
+
+      field.tmpValue = field.value
+      field.editing = true
     },
 
-    cancelEdit(field) {
-      field.editing = false;
-      field.tmpValue = '';
+    saveEdit (field) {
+      field.value = field.tmpValue
+      field.editing = false
+      field.tmpValue = ''
     },
 
-    sortRows(rows, sortBy) {
-      const arr = rows.slice(0);
+    cancelEdit (field) {
+      field.editing = false
+      field.tmpValue = ''
+    },
+
+    sortRows (rows, sortBy) {
+      const arr = rows.slice(0)
 
       return arr.sort((a, b) => {
-        const r = this.sort.desc ? a[sortBy].value < b[sortBy].value : a[sortBy].value > b[sortBy].value;
+        const r = this.sort.desc ? a[sortBy].value < b[sortBy].value : a[sortBy].value > b[sortBy].value
 
-        return r ? 1 : -1;
+        return r ? 1 : -1
       })
     },
 
-    isSortable(column) {
-      return column.sortable && this.dataTable.options.sortable;
+    isSortable (column) {
+      return column.sortable && this.dataTable.options.sortable
     },
 
-    isEditable(field, key, beforeEditing) {
+    isEditable (field, key, beforeEditing) {
       const column = this.dataTable.columns.filter((column) => {
-        return column.value === key;
-      })[0];
-      if(beforeEditing) {
-        return field.editable && this.dataTable.options.editable && column.editable;
-      }else {
-        return field.editable && this.dataTable.options.editable && field.editing && column.editable;
+        return column.value === key
+      })[0]
+      if (beforeEditing) {
+        return field.editable && this.dataTable.options.editable && column.editable
+      } else {
+        return field.editable && this.dataTable.options.editable && field.editing && column.editable
       }
     },
 
-    isHTML(key) {
+    isHTML (key) {
       return this.dataTable.columns.filter((column) => {
-        return column.value === key;
-      })[0].isHTML;
+        return column.value === key
+      })[0].isHTML
     },
 
-    isButton(key) {
+    isButton (key) {
       return this.dataTable.columns.filter((column) => {
-        return column.value === key;
-      })[0].isButton;
+        return column.value === key
+      })[0].isButton
     }
   }
 }
