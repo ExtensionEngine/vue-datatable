@@ -13,7 +13,8 @@
       </div>
 
       <div class="v-table-header-search">
-        Search <input type="text" v-model="searchBy">
+        <input type="text" v-model="searchBy" class="search" placeholder="Search">
+        <button class="reset-search" @click="resetSearch()">Reset</button>
       </div>
     </div>
     <table>
@@ -85,7 +86,6 @@
 <script>
 export default {
   props: ['dataTable'],
-
   data () {
     return {
       currentPage: 1,
@@ -97,7 +97,6 @@ export default {
       }
     }
   },
-
   computed: {
     paginatedRows () {
       return this.getPageRows(this.filteredRows, this.currentPage, this.dataTable.options.pageCount)
@@ -105,11 +104,9 @@ export default {
     filteredRows () {
       return this.filterRows(this.dataTable.rows, this.dataTable.options, this.currentPage)
     },
-
     lastPage () {
       return Math.ceil(this.filteredRows.length / this.dataTable.options.pageCount)
     },
-
     centerPartPage () {
       if (this.lastPage > 10 && this.currentPage >= 5) {
         if (this.lastPage - this.currentPage > 5) {
@@ -138,7 +135,6 @@ export default {
         return r
       }
     },
-
     lastPartPage () {
       if (this.lastPage > 10 && this.lastPage - this.currentPage > 5) {
         return [this.lastPage - 1]
@@ -146,16 +142,13 @@ export default {
         return []
       }
     },
-
     firstRow () {
       return this.currentPage === 1 ? 0 : this.dataTable.options.pageCount * (this.currentPage - 1)
     },
-
     lastRow () {
       return this.dataTable.options.pageCount * this.currentPage > this.filteredRows.length ? this.filteredRows.length : this.dataTable.options.pageCount * this.currentPage
     }
   },
-
   watch: {
     'dataTable.rows' (rows) {
       rows.forEach((row, index) => {
@@ -174,7 +167,6 @@ export default {
         this.dataTable.rows[index] = row
       })
     },
-
     'dataTable.columns' (columns) {
       columns.forEach((column, index) => {
         column = Object.assign({
@@ -185,19 +177,19 @@ export default {
         this.dataTable.columns[index] = column
       })
     },
-
     'searchBy' (val) {
       if (val) {
         this.currentPage = 1
       }
     }
   },
-
   methods: {
+    resetSearch () {
+      this.searchBy = ''
+    },
     onChangePageCount () {
       this.currentPage = 1
     },
-
     filterRows (rows, options, currentPage) {
       rows = this.sort.sortBy ? this.sortRows(rows, this.sort.sortBy) : rows
 
@@ -220,11 +212,9 @@ export default {
 
       return rows
     },
-
     getPageRows (rows) {
       return rows.slice(this.firstRow, this.lastRow)
     },
-
     togglePage (page) {
       switch (page) {
         case 'prev':
@@ -243,7 +233,6 @@ export default {
         this.dataTable.onPageChanged(this.currentPage)
       }
     },
-
     sortBy (column) {
       if (!column.sortable || !this.dataTable.options.sortable) return
 
@@ -254,25 +243,21 @@ export default {
         this.sort.desc = true
       }
     },
-
     editField (field, key) {
       if (!this.isEditable(field, key, true)) return
 
       field.tmpValue = field.value
       field.editing = true
     },
-
     saveEdit (field) {
       field.value = field.tmpValue
       field.editing = false
       field.tmpValue = ''
     },
-
     cancelEdit (field) {
       field.editing = false
       field.tmpValue = ''
     },
-
     sortRows (rows, sortBy) {
       const arr = rows.slice(0)
 
@@ -282,11 +267,9 @@ export default {
         return r ? 1 : -1
       })
     },
-
     isSortable (column) {
       return column.sortable && this.dataTable.options.sortable
     },
-
     isEditable (field, key, beforeEditing) {
       const column = this.dataTable.columns.filter((column) => {
         return column.value === key
@@ -297,7 +280,6 @@ export default {
         return field.editable && this.dataTable.options.editable && field.editing && column.editable
       }
     },
-
     isHTML (key) {
       return this.dataTable.columns.filter((column) => {
         return column.value === key
@@ -327,6 +309,32 @@ export default {
   }
 
   .v-table {
+    button{
+      background-color: red;
+      border-radius: 5px;
+      color: #000;
+      border: 1px solid #979797;
+      background-color: #CBCCCD;
+      margin-left: 5px;
+      padding: 5px;
+      cursor: pointer;
+
+      &:hover, &:focus {
+        outline: none;
+      }
+    }
+    .search{
+      border-radius: 5px;
+      padding: 7px;
+      border: 1px solid #979797;
+
+      &:hover, &:focus {
+        outline: none;
+      }
+    }
+    .reset-search{
+      font-size: 1rem;
+    }
     table {
       width: 100%;
       border-collapse:collapse;
@@ -456,18 +464,18 @@ export default {
           display: inline-block;
           height: 40px;
           box-sizing: border-box;
-          padding: 0px 15px;
-          line-height: 40px;
+          padding: 0px 10px;
           text-decoration: none;
           color: #000;
-          border-radius: 2px;
+          border-radius: 5px;
+          border: 1px solid transparent;
           font-size: 1rem;
           
           &:hover {
-            color: #fff;
-            border-top: 1px solid #333;
-            border-bottom: 1px solid #333;
-            background-color: #333;
+            color: #000;
+            border: 1px solid #979797;
+            border-radius: 5px;
+            background-color: #CBCCCD;
           }
 
           &:nth-last-child(1) {
@@ -481,15 +489,15 @@ export default {
             &:hover {
               color: #666;
               background-color: transparent;
-              border: none;
+              border: 1px solid transparent;
             }
           }
 
           &.current {
             color: #000;  
             border: 1px solid #979797;
-            background-color: #fff;
-            background: linear-gradient(to bottom, #fff 0%, #dcdcdc 100%);
+            border-radius: 5px;
+            background-color: #CBCCCD;
           }
         }
       }
