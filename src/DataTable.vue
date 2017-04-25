@@ -3,7 +3,7 @@
     <div class="v-table-header">
       <div class="v-table-header-count">
         Show
-        <select v-model="dataTable.options.pageCount" @change="onChangePageCount()">
+        <select v-model="pageCount" @change="onChangePageCount()">
           <option>5</option>
           <option>10</option>
           <option>15</option>
@@ -88,6 +88,7 @@ export default {
   props: ['dataTable'],
   data () {
     return {
+      pageCount: this.dataTable.options.pageCount,
       currentPage: 1,
       searchBy: '',
       rows: [],
@@ -99,13 +100,13 @@ export default {
   },
   computed: {
     paginatedRows () {
-      return this.getPageRows(this.filteredRows, this.currentPage, this.dataTable.options.pageCount)
+      return this.getPageRows(this.filteredRows, this.currentPage, this.pageCount)
     },
     filteredRows () {
       return this.filterRows(this.dataTable.rows, this.dataTable.options, this.currentPage)
     },
     lastPage () {
-      return Math.ceil(this.filteredRows.length / this.dataTable.options.pageCount)
+      return Math.ceil(this.filteredRows.length / this.pageCount)
     },
     centerPartPage () {
       if (this.lastPage > 10 && this.currentPage >= 5) {
@@ -143,10 +144,10 @@ export default {
       }
     },
     firstRow () {
-      return this.currentPage === 1 ? 0 : this.dataTable.options.pageCount * (this.currentPage - 1)
+      return this.currentPage === 1 ? 0 : this.pageCount * (this.currentPage - 1)
     },
     lastRow () {
-      return this.dataTable.options.pageCount * this.currentPage > this.filteredRows.length ? this.filteredRows.length : this.dataTable.options.pageCount * this.currentPage
+      return this.pageCount * this.currentPage > this.filteredRows.length ? this.filteredRows.length : this.pageCount * this.currentPage
     }
   },
   watch: {
