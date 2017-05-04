@@ -1,14 +1,16 @@
 # vue-datatable
 
 > A datatable component build with Vuejs.
+> This is a forked from original [repo](https://github.com/galenyuan/vue-datatable).
+> This repo supports Vuejs 2.0
 
 > You can try it [Online](https://galenyuan.github.io/vue-datatable/), it's Vue version [DataTables](https://github.com/DataTables/DataTables)
 
-##Usage
+## Usage
 ```bash
-npm install --save vue-datatable
+npm install https://github.com/hrvojevu/vue-datatable.git --save
 ```
-Vue-loader and Babel is required(maybe will release ES5 and JavaScript file later :P)
+Vue-loader and Babel is required.
 
 ```javascript
 <data-table :data-table="tableData"></data-table>
@@ -17,110 +19,79 @@ Vue-loader and Babel is required(maybe will release ES5 and JavaScript file late
 import DataTable from 'vue-datatable';
 
 export default {
-  data() {
-    return {
-      tableData: {
+  computed: {
+    ...mapGetters({
+      objectList: 'someVuexStore/someGetter' // this can be initialized using Vuex or simply by adding list of objects.
+    }),
+    rowData: function () {
+      return this.objectList.map((object, index) => ({
+        id: {
+          value: index + 1
+        },
+        name: {
+          value: object.name
+        },
+        status: {
+          value: object.status
+        },
+        content: {
+          value: object.content
+        },
+        action: {
+          value: [
+            {
+              text: 'Edit',
+              class: ['green'],
+              func: function () {
+              }
+            }, {
+              text: 'Remove',
+              class: ['gray'],
+              func: function () {
+              }
+            }
+          ]
+        }
+      }))
+    },
+    tableData: function () {
+      return {
         options: {
           sortable: true,
-          editable: true,
+          editable: false,
           pageCount: 10
         },
         columns: [
           {
             value: 'id',
-            text: 'ID',
-            sortable: true,
-            editable: false
+            text: '#',
+            sortable: true
           },
           {
             value: 'name',
             text: 'Name',
-            sortable: true,
-            editable: true
+            sortable: true
           },
           {
-            value: 'age',
-            text: 'Age',
-            sortable: true,
-            editable: true
+            value: 'status',
+            text: 'Status',
+            sortable: true
           },
           {
-            value: 'sex',
-            text: 'Sex',
-            sortable: true,
-            editable: true
-          },
-          {
-            value: 'link',
-            text: 'Link',
+            value: 'content',
+            text: 'Content',
             sortable: false,
-            editable: false,
             isHTML: true
           },
           {
             value: 'action',
             text: 'Action',
             sortable: false,
-            editable: false,
             isButton: true
           }
         ],
-        rows: [],
-        onPageChanged (page) {
-          console.log('Current page is ' + page)
-        }
+        rows: this.rowData
       }
-    }
-  },
-  created () {
-    const chance = new Chance()
-    const length = chance.integer({min: 0, max: 30})
-
-    for (let i = 0; i < length; i++) {
-      const obj = {
-        id: {
-          value: i + 1
-        },
-
-        name: {
-          value: chance.name(),
-          editable: chance.bool()
-        },
-        age: {
-          value: chance.age(),
-          editable: chance.bool()
-        },
-        sex: {
-          value: chance.gender(),
-          editable: chance.bool
-        },
-        link: {
-          value: `<a href="${chance.url()}">${chance.url()}</a>`
-        },
-        action: {
-          value: [
-            {
-              text: 'action1',
-              class: ['red'],
-              func: function (event, column, field) {
-                console.log('event', event)
-                console.log('column', column)
-                console.log('field', field)
-              }
-            },
-            {
-              text: 'action2',
-              class: ['green'],
-              func: function (event, column, field) {
-                console.log('event', event)
-                console.log('column', column)
-                console.log('field', field)
-              }
-            }
-          ]
-        }
-      }
-      this.tableData.rows.push(obj)
     }
   },
   components: {
