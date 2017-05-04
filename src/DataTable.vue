@@ -214,6 +214,12 @@ export default {
       return rows
     },
     getPageRows (rows) {
+      if (this.currentPage >= this.lastPage && this.lastPage !== 0) {
+        let length = rows.slice(this.firstRow, this.lastRow).length
+        if (length === 0) {
+          this.currentPage -= 1
+        }
+      }
       return rows.slice(this.firstRow, this.lastRow)
     },
     togglePage (page) {
