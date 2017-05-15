@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "demo": "cd docs && webpack",
-    "build": "webpack" 
+    "build": "webpack"
   },
   "keywords": [
     "Vue",
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.0.0",
+    "moment": "^2.18.1",
     "vue": "^1.0.21"
   },
   "devDependencies": {
@@ -37,7 +38,8 @@
     "node-sass": "^3.8.0",
     "sass-loader": "^4.0.0",
     "vue-html-loader": "^1.2.3",
-    "vue-loader": "^8.3.0",
+    "vue-loader": "^11.1.4",
+    "vue-template-compiler": "^2.2.4",
     "vue-style-loader": "^1.0.0",
     "webpack": "^1.12.2"
   }

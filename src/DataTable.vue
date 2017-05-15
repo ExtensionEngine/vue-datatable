@@ -40,6 +40,7 @@
               </template>
               <template v-else>
                 <template v-if="isHTML(key)"><span v-html="item.value"></span></template>
+                <template v-else-if="isDate(key)"><span v-text="formatDate(item.value)"></span></template>
                 <template v-else>{{item.value}}</template>
               </template>
             </span>
@@ -84,6 +85,8 @@
 </template>
 
 <script>
+import moment from 'moment'
+
 export default {
   props: ['dataTable'],
   data () {
@@ -292,11 +295,18 @@ export default {
         return column.value === key
       })[0].isHTML
     },
-
     isButton (key) {
       return this.dataTable.columns.filter((column) => {
         return column.value === key
       })[0].isButton
+    },
+    isDate (key) {
+      return this.dataTable.columns.filter((column) => {
+        return column.value === key
+      })[0].isDate
+    },
+    formatDate (value) {
+      return moment(value).format('MMMM Do YYYY, h:mm:ss')
     }
   }
 }
