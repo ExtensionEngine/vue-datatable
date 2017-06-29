@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import moment from 'moment'
+import format from 'date-fns/format'
 
 export default {
   props: ['dataTable'],
@@ -306,7 +306,7 @@ export default {
       })[0].isDate
     },
     formatDate (value) {
-      return moment(value).format('MMMM Do YYYY, h:mm:ss')
+      return format(value, 'MMMM Do YYYY, h:mm:ss')
     }
   }
 }
